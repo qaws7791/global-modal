@@ -1,27 +1,54 @@
-import React from 'react';
-import useModalStore, { isModalOpen } from '../../store/useModalStore';
+import React, { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 
 interface ModalProps {
-  modalId: string;
+  children: React.ReactNode;
 }
 
-const BaseModal: React.FC<ModalProps> = ({ modalId }) => {
-  // const isModalOpen = !!useModalStore((state)=>state.modals[modalId]);
-  const closeModal = (value: boolean) => useModalStore.getState().closeModal(modalId, value); 
+const ModalWrapper = styled.div`
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+`;
 
-  
-  if (!isModalOpen(modalId)) {
-    return null;
-  }
+const ModalBackground = styled.div`
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+`;
+
+const BaseModal: React.FC<ModalProps> = ({ children, ...props }) => {
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const [previousFocus, setPreviousFocus] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const focusedElementBeforeModal = document.activeElement as HTMLElement;
+    console.log(focusedElementBeforeModal)
+    console.log(modalRef.current)
+    if (modalRef.current) {
+      modalRef.current.focus();
+    }
+
+    setPreviousFocus(focusedElementBeforeModal);
+
+    return () => {
+      if (previousFocus) {
+        previousFocus.focus();
+      }
+    };
+  }, []);
 
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <p>Modal</p>
-        <button onClick={() => closeModal(true)}>Confirm</button>
-        <button onClick={() => closeModal(false)}>Cancel</button>
-      </div>
-    </div>
+    <>
+      <ModalBackground />
+      <ModalWrapper {...props} ref={modalRef}>
+        {children}
+      </ModalWrapper>
+    </>
   );
 };
 
