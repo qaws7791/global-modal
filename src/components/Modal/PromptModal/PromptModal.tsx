@@ -1,6 +1,5 @@
 import React, { ReactNode, useRef, useState } from "react";
 import BaseModal from "../BaseModal";
-import useClickOutside from "../../../hooks/useClickOutside";
 
 interface ModalProps {
   title?: string;
@@ -18,10 +17,8 @@ const PromptModal: React.FC<ModalProps> = ({
   const [text, setText] = useState("");
   const ref = useRef<HTMLDivElement>(null);
 
-  useClickOutside(ref, () => onClose());
-
   return (
-    <BaseModal>
+    <BaseModal onClose={onClose}>
       <div
         ref={ref}
         style={{
